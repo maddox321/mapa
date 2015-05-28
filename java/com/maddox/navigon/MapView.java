@@ -59,6 +59,8 @@ public class MapView extends View
     // touch position values kept for panning\dragging
     protected PointD lastTouchPos = new PointD(-1, -1);
 
+    public PointD tochPoint = new PointD(1, 1);
+
     public MapView(Context context, AttributeSet attrs)
     {
         super(context, attrs);
@@ -319,6 +321,9 @@ public class MapView extends View
             canvas.drawText("lat:" + gpsLocation.getLatitude(), 0, 20 * pen++, fontPaint);
 //            canvas.drawText("alt:" + gpsLocation.getAltitude(), 0, 20 * pen++, fontPaint);
             canvas.drawText("Zoom:" + tileManager.getZoom(), 0, 20 * pen++, fontPaint);
+            canvas.drawText("10 px to: " + String.valueOf(ground*10) + " metrów", 0, 20 * pen++, fontPaint);
+            canvas.drawText("lon:" + (-1*tochPoint.y), 0, 20 * pen++, fontPaint);
+            canvas.drawText("lat:" + (-1*tochPoint.x), 0, 20 * pen++, fontPaint);
         }
     }
 
@@ -329,12 +334,26 @@ public class MapView extends View
 
         if (action == MotionEvent.ACTION_DOWN)
         {
-            // Keep touch position for later use (dragging)
+            Point center = new Point(getWidth() / 2, getHeight() / 2);
+            Point diff = new Point(center.x - (int) lastTouchPos.x, center.y - (int) lastTouchPos.y);
+
+//            Keep touch position for later use (dragging)
             lastTouchPos.x = (int) event.getX();
             lastTouchPos.y = (int) event.getY();
-            Log.d("asd","asd");
-            tileManager. lonLatToPixelXY((int) event.getX(), (int) event.getY());
+            Point centerGlobal = tileManager.lonLatToPixelXY(seekLocation.x, seekLocation.y);
+            centerGlobal.x -= diff.x;
+            centerGlobal.y -= diff.y;
 
+            PointD geoPoint = tileManager.pixelXYToLonLat((int) centerGlobal.y, (int) centerGlobal.x);
+            tochPoint = geoPoint;
+//            Log.d("asd","asd");
+//            tileManager.lonLatToPixelXY((int) event.getX(), (int) event.getY());
+//            PointD current = new PointD(event.getX(), event.getY());
+//            PointD diff = new PointD(current.x - lastTouchPos.x, current.y - lastTouchPos.y);
+//            Point pixels1 = tileManager.lonLatToPixelXY(seekLocation.x, seekLocation.y);
+//            Point pixels2 = new Point(pixels1.x - (int) diff.x, pixels1.y - (int) diff.y);
+//            PointD newSeek = tileManager.pixelXYToLonLat((int) pixels2.x, (int) pixels2.y);
+//            this.setGpsLocation(newSeek.x, newSeek.y);
 
             return true;
         }

@@ -30,7 +30,7 @@ public class MapViewLocationListener implements LocationListener
         {
             // Set location and update the mapView
             mapView.setGpsLocation(location.getLongitude(), location.getLatitude());//, location.getAltitude(), location.getAccuracy());
-            mapView.postInvalidate();
+            mapView.invalidate();
         }
     }
 

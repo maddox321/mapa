@@ -110,7 +110,7 @@ public class MapAppActivity extends Activity{
         saveMapViewSettings();
 
         // Mainly releases the MapView pointer inside the listener
-        locationListener.stop();
+//        locationListener.stop();
 
         // Unregistering our listener
         LocationManager locationManager = (LocationManager) getSystemService(LOCATION_SERVICE);
