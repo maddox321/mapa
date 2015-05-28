@@ -334,12 +334,12 @@ public class MapView extends View
 
         if (action == MotionEvent.ACTION_DOWN)
         {
-            Point center = new Point(getWidth() / 2, getHeight() / 2);
-            Point diff = new Point(center.x - (int) lastTouchPos.x, center.y - (int) lastTouchPos.y);
 
 //            Keep touch position for later use (dragging)
             lastTouchPos.x = (int) event.getX();
             lastTouchPos.y = (int) event.getY();
+            Point center = new Point(getWidth() / 2, getHeight() / 2);
+            Point diff = new Point(center.x - (int) lastTouchPos.x, center.y - (int) lastTouchPos.y);
             Point centerGlobal = tileManager.lonLatToPixelXY(seekLocation.x, seekLocation.y);
             centerGlobal.x -= diff.x;
             centerGlobal.y -= diff.y;
