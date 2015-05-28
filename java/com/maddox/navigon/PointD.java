@@ -1,14 +1,6 @@
-/*
- * MapApp : Simple offline map application, made by Hisham Ghosheh for tutorial purposes only
- * Tutorial on my blog
- * http://ghoshehsoft.wordpress.com/2012/03/09/building-a-map-app-for-android/
- * 
- * Class tutorial:
- * http://ghoshehsoft.wordpress.com/2012/03/19/mapapp3-writing-a-tiles-manager/
- */
-
 package com.maddox.navigon;
 
+//klasa pomocnicza do wyznaczania punktów na mapie.
 public class PointD
 {
     public double x, y;

@@ -1,12 +1,3 @@
-/*
- * MapApp : Simple offline map application, made by Hisham Ghosheh for tutorial purposes only
- * Tutorial on my blog
- * http://ghoshehsoft.wordpress.com/2012/03/09/building-a-map-app-for-android/
- * 
- * Class tutorial:
- * http://ghoshehsoft.wordpress.com/2012/04/06/mapapp5-mapview-and-activity/
- */
-
 package com.maddox.navigon;
 
 import android.location.Location;
@@ -28,8 +19,8 @@ public class MapViewLocationListener implements LocationListener
     {
         if (!stopped && location != null)
         {
-            // Set location and update the mapView
-            mapView.setGpsLocation(location.getLongitude(), location.getLatitude());//, location.getAltitude(), location.getAccuracy());
+            // ustawianie lokalizaci i refrech mapy
+            mapView.setGpsLocation(location.getLongitude(), location.getLatitude());
             mapView.invalidate();
         }
     }

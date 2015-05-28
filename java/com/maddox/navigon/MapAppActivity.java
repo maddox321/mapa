@@ -1,13 +1,5 @@
 package com.maddox.navigon;
 
-/**
- * Code owner Maciej Wawryk
- * Contact: wawryk2@gmail.com
- * Contact: 505525431
- * Created by Maddox on 2015-05-04.
- * In project TMC.
- */
-
 import android.app.Activity;
 import android.content.SharedPreferences;
 import android.graphics.Bitmap;
@@ -37,6 +29,7 @@ import com.maddox.navigon.MapViewLocationListener;
 import com.maddox.navigon.PointD;
 import com.maddox.navigon.TilesProvider;
 
+
 public class MapAppActivity extends Activity{
 
     private GPSTracker gpsTracker;
@@ -62,7 +55,7 @@ public class MapAppActivity extends Activity{
 
     ZoomControls zoomControls;
 
-    //zoom
+    //zoom +
     View.OnClickListener zoomIn_Click = new View.OnClickListener(){
         @Override
         public void onClick(View v){
@@ -70,6 +63,7 @@ public class MapAppActivity extends Activity{
         }
     };
 
+    //zoom -
     View.OnClickListener zoomOut_Click = new View.OnClickListener(){
         @Override
         public void onClick(View v){
@@ -90,9 +84,9 @@ public class MapAppActivity extends Activity{
     }
 
     void initViews(){
-        //Bitmap marker = BitmapFactory.decodeResource(getResources(), R.drawable.marker);
-//        String path = Environment.getExternalStorageDirectory() + "/mapapp/Lol.sqlitedb";
-        String path = "/storage/sdcard1/mapapp/Lol.sqlitedb";
+        //Pobranie pliku z baza danych mapy
+        String path = Environment.getExternalStorageDirectory() + "/mapapp/Lol.sqlitedb";
+        //String path = "/storage/sdcard1/mapapp/Lol.sqlitedb";
         tilesProvider = new TilesProvider(path);
 
         if (savedGpsLocation != null) mapView.setGpsLocation(gpsTracker.getLongitude(), gpsTracker.getLongitude());
@@ -106,41 +100,36 @@ public class MapAppActivity extends Activity{
 
     @Override
     protected void onPause(){
-        // Save settings before leaving
         saveMapViewSettings();
 
-        // Mainly releases the MapView pointer inside the listener
-//        locationListener.stop();
+        //locationListener.stop();
 
-        // Unregistering our listener
         LocationManager locationManager = (LocationManager) getSystemService(LOCATION_SERVICE);
         locationManager.removeUpdates(locationListener);
 
-        // Closes the source of the tiles (Database in our case)
         tilesProvider.close();
-        // Clears the tiles held in the tilesProvider
         tilesProvider.clear();
 
-        // Release mapView pointer
         mapView = null;
 
         super.onPause();
     }
 
+    //Akcje klawiszowe
     @Override
     public boolean onKeyDown(int keyCode, KeyEvent event){
-        // Zoom
+        // Zoom +
         if (keyCode == KeyEvent.KEYCODE_VOLUME_UP || keyCode == KeyEvent.KEYCODE_Z){
             mapView.zoomIn();
             return true;
         }
-        // Zoom
+        // Zoom -
         else if (keyCode == KeyEvent.KEYCODE_VOLUME_DOWN || keyCode == KeyEvent.KEYCODE_X){
             mapView.zoomOut();
             return true;
         }
-        // Enable auto follow
-        if (keyCode == KeyEvent.KEYCODE_H || keyCode == KeyEvent.KEYCODE_FOCUS){
+        // Centrowanie na marker
+        if (keyCode == KeyEvent.KEYCODE_H || keyCode == KeyEvent.KEYCODE_FOCUS) {
             mapView.followMarker();
             return true;
         }
@@ -148,7 +137,7 @@ public class MapAppActivity extends Activity{
         return super.onKeyDown(keyCode, event);
     }
 
-    // Called manually to restore settings from SharedPreferences
+    // odtwarzanie stanu mapy
     void restoreMapViewSettings(){
         SharedPreferences pref = getSharedPreferences("View_Settings", MODE_PRIVATE);
 
@@ -160,16 +149,10 @@ public class MapAppActivity extends Activity{
         mapView.invalidate();
         mapView.followMarker();
 
-//        lon = Double.parseDouble(pref.getString(Pref.SEEK_LON, "0"));
-//        lat = Double.parseDouble(pref.getString(Pref.SEEK_LAT, "0"));
-//        zoom = pref.getInt(Pref.ZOOM, 0);
-//
-//        mapView.setSeekLocation(lon, lat);
-//        mapView.setZoom(zoom);
         mapView.refresh();
     }
 
-    // Called manually to save settings in SharedPreferences
+    // zapisywanie stanu mapy
     void saveMapViewSettings(){
         SharedPreferences.Editor editor = getSharedPreferences("View_Settings", MODE_PRIVATE).edit();
 

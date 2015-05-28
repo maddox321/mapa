@@ -1,14 +1,5 @@
 package com.maddox.navigon;
 
-
-/**
- * Code owner Maciej Wawryk
- * Contact: wawryk2@gmail.com
- * Contact: 505525431
- * Created by Maddox on 2015-05-04.
- * In project TMC.
- */
-
 import android.app.AlertDialog;
 import android.content.Context;
 import android.content.DialogInterface;
@@ -17,6 +8,7 @@ import android.location.LocationListener;
 import android.location.LocationManager;
 import android.os.Bundle;
 
+//Lokalizowanie na podstawie sygna³u GPS
 public class GPSTracker implements LocationListener {
     private final Context mContext;
     boolean isGPSEnabled = false;
@@ -42,6 +34,7 @@ public class GPSTracker implements LocationListener {
             locationManager = (LocationManager) mContext.getSystemService(Context.LOCATION_SERVICE);
             isGPSEnabled = locationManager.isProviderEnabled(LocationManager.GPS_PROVIDER);
             isNetworkEnabled = locationManager.isProviderEnabled(LocationManager.NETWORK_PROVIDER);
+            //nie GPS'a
             if (!isGPSEnabled && !isNetworkEnabled) {
                 new AlertDialog.Builder(mContext)
                         .setTitle("Some connection needed!")
@@ -59,6 +52,7 @@ public class GPSTracker implements LocationListener {
                         .setIcon(android.R.drawable.ic_dialog_alert)
                         .show();
             }
+            //Jest GPS
             else {
                 this.canGetLocation = true;
                 if (isNetworkEnabled) {

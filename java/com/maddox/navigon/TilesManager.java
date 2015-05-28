@@ -5,31 +5,26 @@ import android.graphics.Rect;
 
 public class TilesManager
 {
-    public final static double EarthRadius = 6378137; // in meters
-    public final static double MinLatitude = -85.05112878; // Near South pole
-    public final static double MaxLatitude = 85.05112878; // Near North pole
-    public final static double MinLongitude = -180; // West
-    public final static double MaxLongitude = 180; // East
+    public final static double EarthRadius = 6378137; // w metrach promien
+    public final static double MinLatitude = -85.05112878; // biegun po³udniowy
+    public final static double MaxLatitude = 85.05112878; // biegun pólnocny
+    public final static double MinLongitude = -180; // zachód
+    public final static double MaxLongitude = 180; // wschód
 
-    // this value should be extracted from DB, I used 17 for simplicity
     protected int maxZoom = 14;
     protected int minZoom = 9;
-    protected int tileSize = 256; // Size in pixels of a single tile image
+    protected int tileSize = 256; // rozmiar kafelka w px
 
-    // Dimensions in pixels of the view the map is rendered in.
     protected int viewWidth, viewHeight;
 
-    // Number of tiles (horizontally and vertically) needed to fill the view,
-    // calculated later.
+    //ile kafli na widok
     protected int tileCountX, tileCountY;
 
-    // Will hold the indices of the visible tiles
+    // rogi widocznego regionu
     protected Rect visibleRegion;
 
-    // Current location of the tiles manager
     protected PointD location = new PointD(0, 0);
 
-    // Current zoom level
     protected int zoom = 0;
 
     public TilesManager(int tileSize, int viewWidth, int viewHeight)
@@ -38,7 +33,6 @@ public class TilesManager
 
         this.setDimensions(viewWidth, viewHeight);
 
-        // Updates visible region, this function will be explained later
         updateVisibleRegion(location.x, location.y, zoom);
     }
 
@@ -59,7 +53,6 @@ public class TilesManager
 
     protected Point calcTileIndices(double longitude, double latitude)
     {
-        // Simple calculations
         PointD ratio = calcRatio(longitude, latitude);
         int mapSize = mapSize();
 
@@ -68,16 +61,14 @@ public class TilesManager
 
     protected void updateVisibleRegion(double longitude, double latitude, int zoom)
     {
-        // Update manager state
         location.x = longitude;
         location.y = latitude;
         this.zoom = zoom;
 
-        // Get the index of the tile we are interested in
+        //srodkowy
         Point tileIndex = calcTileIndices(location.x, location.y);
 
-        // We get some of the neighbors from left and some from right
-        // Same thing for up and down
+        //sasiedzi prawo lewo / gora dol
         int halfTileCountX = (int) ((float) (tileCountX + 1) / 2f);
         int halfTileCountY = (int) ((float) (tileCountY + 1) / 2f);
 
@@ -85,7 +76,6 @@ public class TilesManager
                 + halfTileCountY);
     }
 
-    // Simple clamp function
     protected static double clamp(double x, double min, double max)
     {
         return Math.min(Math.max(x, min), max);
@@ -99,7 +89,6 @@ public class TilesManager
 
     public Point lonLatToPixelXY(double longitude, double latitude)
     {
-        // Clamp values
         longitude = clamp(longitude, MinLongitude, MaxLongitude);
         latitude = clamp(latitude, MinLatitude, MaxLatitude);
 
@@ -179,7 +168,6 @@ public class TilesManager
         this.viewWidth = width;
         this.viewHeight = height;
 
-        // Simple math <span class="wp-smiley wp-emoji wp-emoji-smile" title=":)">:)</span>
         tileCountX = (int) ((float) viewWidth / tileSize);
         tileCountY = (int) ((float) viewHeight / tileSize);
     }

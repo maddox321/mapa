@@ -1,12 +1,3 @@
-/*
- * MapApp : Simple offline map application, made by Hisham Ghosheh for tutorial purposes only
- * Tutorial on my blog
- * http://ghoshehsoft.wordpress.com/2012/03/09/building-a-map-app-for-android/
- * 
- * Class tutorial:
- * http://ghoshehsoft.wordpress.com/2012/04/06/mapapp5-mapview-and-activity/
- */
-
 package com.maddox.navigon;
 
 import java.util.Collection;
@@ -29,43 +20,38 @@ import android.view.View;
 
 public class MapView extends View
 {
-    // Needed to pass to View constructor
     protected Context context;
 
-    // MapView dimensions
+    // wymiary widoku
     protected int viewWidth, viewHeight;
 
-    // Provides us with tiles
+    //dostarczanie kafelkow do widoku
     protected TilesProvider tileProvider;
 
-    // Handles calculations
+    //zarzadzanie kafelkami
     protected TilesManager tileManager;
 
-    // Different paints
     protected Paint fontPaint;
     protected Paint bitmapPaint = new Paint();
     protected Paint circlePaint = new Paint();
 
-    // The location of the view center in longitude, latitude
+    // centrowanie na ten punkt (ETI) gdy nie ma gps
     protected PointD seekLocation = new PointD(18.612363, 54.371676);
-    // Location of the phone using Gps data
+    // lokalizacja gps
     protected Location gpsLocation = null;
-    // If true then seekLocation will always match gpsLocation
+    // jezeli prawda seekLoc = gpsLoc
     protected boolean autoFollow = false;
 
-    // An image to draw at the phone's position
     protected Bitmap positionMarker;
 
-    // touch position values kept for panning\dragging
     protected PointD lastTouchPos = new PointD(-1, -1);
 
-    public PointD tochPoint = new PointD(1, 1);
+    protected PointD tochPoin = new PointD(0,0);
 
     public MapView(Context context, AttributeSet attrs)
     {
         super(context, attrs);
 
-        // We don't know view dimensions yet, super.onMeasure will be called
         viewWidth = viewHeight = -1;
 
         if (!isInEditMode())
@@ -95,42 +81,33 @@ public class MapView extends View
         super(context);
         this.context = context;
 
-        // Tiles provider is passed not created.
-        // The idea is to hide the actual tiles source from the view
-        // This way the view doesn't care whether the source is a database or
-        // the internet
         this.tileProvider = tilesProvider;
 
-        // These values will be used later
         this.viewWidth = viewWidth;
         this.viewHeight = viewHeight;
 
-        // Get the marker image
         this.positionMarker = positionMarker;
 
-        // Creating a TilesManager assuming that the tile size is 256*256.
-        // You might want to pass tile size as a parameter or even calculate it
-        // somehow
+        //wymiary kafelka to 256 podawany jako parametr bo s¹ mozliwe rozne wielkosci
         tileManager = new TilesManager(256, viewWidth, viewHeight);
 
-        // Initializes paints
+        //inicjalizacja paintow
         initPaints();
 
-        // Fetching tiles from the tilesProvider
+        // pobieranie kafelek
         fetchTiles();
     }
 
     @Override
     protected void onMeasure(int widthMeasureSpec, int heightMeasureSpec)
     {
-        // Case1 : width and height are provided in the constructor
+        // startowe wymiary podawane z konstruktora
         if (viewWidth != -1 && viewHeight != -1)
         {
-            // Setting width,height that was passed in the constructor as the
-            // view's dimensions
+            //ustawianie odpowiednich wymiarow
             setMeasuredDimension(viewWidth, viewHeight);
         }
-        // Case2: view was created using XML
+        // widok wziety z xmla.
         else
         {
             super.onMeasure(widthMeasureSpec, heightMeasureSpec);
@@ -139,31 +116,28 @@ public class MapView extends View
 
     void initPaints()
     {
-        // Font paint is used to draw text
+        // tekst
         fontPaint = new Paint();
         fontPaint.setColor(Color.DKGRAY);
         fontPaint.setShadowLayer(1, 1, 1, Color.BLACK);
         fontPaint.setTextSize(20);
 
-        // Used to draw a semi-transparent circle at the phone's gps location
         circlePaint.setARGB(70, 170, 170, 80);
         circlePaint.setAntiAlias(true);
     }
 
     void fetchTiles()
     {
-        // Update tilesManager to have the center of the view as its location
+        // update menadzera zeby wiedzia³ gdzie jest teraz srodek
         tileManager.setLocation(seekLocation.x, seekLocation.y);
 
-        // Get the visible tiles indices as a Rect
+        // pobranie 4 rogow jakie potrzebujemy
         Rect visibleRegion = tileManager.getVisibleRegion();
 
         if (tileProvider == null) return;
 
-        // Tell tiles provider what tiles we need and which zoom level.
-        // The tiles will be stored inside the tilesProvider.
-        // We can get those tiles later when drawing the view
-        tileProvider.fetchTiles(visibleRegion, tileManager.getZoom());
+       //zamowienie na konkretne kafelki dany region o danym zoomie
+       tileProvider.fetchTiles(visibleRegion, tileManager.getZoom());
     }
 
     public void setTilesProvider(TilesProvider tilesProvider)
@@ -180,8 +154,7 @@ public class MapView extends View
 
             String str = "MapView: Design Mode";
 
-            // Text centering, Modified version of :
-            // http://stackoverflow.com/a/11121873
+            //ustawienie tekstu
             int xPos = (int) ((canvas.getWidth() / 2f) - fontPaint.measureText(str) / 2f);
             int yPos = (int) ((canvas.getHeight() / 2) - ((fontPaint.descent() + fontPaint.ascent()) / 2));
 
@@ -189,14 +162,13 @@ public class MapView extends View
             return;
         }
 
+        //nie ma kafelkow
         if (tileProvider == null)
         {
             canvas.drawARGB(255, 250, 111, 103);
 
             String str = "TilesProvider not set";
 
-            // Text centering, Modified version of :
-            // http://stackoverflow.com/a/11121873
             int xPos = (int) ((canvas.getWidth() / 2f) - fontPaint.measureText(str) / 2f);
             int yPos = (int) ((canvas.getHeight() / 2) - ((fontPaint.descent() + fontPaint.ascent()) / 2));
 
@@ -205,125 +177,78 @@ public class MapView extends View
             return;
         }
 
-        // Clear the view to grey
+        // szary
         canvas.drawARGB(255, 100, 100, 100);
 
-		/*
-		 * To draw the map we need to find the position of the pixel representing the center of the view.
-		 * We need the position to be relative to the full world map, lets call this pixel position "pix"
-		 * pix.x will range from 0 to (2^zoom)*tileSize-1, same for pix.y
-		 * To draw anything on the map we subtract pix from the original position
-		 * It's just like dragging the map so that the pixel representing the gps location gets into the center of the view
-		*/
-
-        // In a square world map,
-        // we need to know pix location as two values from 0.0 to 1.0
+        //znormalizowany pixel œrodka 0,0 - 1,0
         PointD pixRatio = TilesManager.calcRatio(seekLocation.x, seekLocation.y);
 
-        // Full world map width in pixels
+        // normalny pixel œrodka
         int mapWidth = tileManager.mapSize() * 256;
         Point pix = new Point((int) (pixRatio.x * mapWidth), (int) (pixRatio.y * mapWidth));
 
-		/*
-		 * Subtracting pix from each tile position will result in pix being drawn at the top left corner of the view
-		 * To drag it to the center we add (viewWidth/2, viewHeight/2) to the final result
-		 * pos.x = pos.x - pix.x + viewWidth/2f
-		 * pos.x = pox.x - (pix.x - viewWidth/2f)
-		 * ---> offset.x =  (pix.x - viewWidth/2f)
-		 * same for offset.y
-		 */
-
+		//ustalanie polozenia kafelkow
         Point offset = new Point((int) (pix.x - viewWidth / 2f), (int) (pix.y - viewHeight / 2f));
-        // offset is now ready to use
 
-        // Drawing tiles in a separate function to make the code more readable
         drawTiles(canvas, offset);
 
-        // Draw the marker that pinpoints the user's location
         drawMarker(canvas, offset);
     }
 
     void drawTiles(Canvas canvas, Point offset)
     {
-        // Get tiles from the Hashtable inside tilesProvider
         Collection<Tile> tilesList = tileProvider.getTiles().values();
 
-        // x,y are the calculated offset
-
-        // Go trough all the available tiles
+        //petla po wszystkich kafelkach
         for (Tile tile : tilesList)
         {
-            // We act as if we're drawing a map of the whole world at a specific
-            // zoom level
-            // The top left corner of the map occupies the pixel (0,0) of the
-            // view
+
             int tileSize = tileManager.getTileSize();
             long tileX = tile.x * tileSize;
             long tileY = tile.y * tileSize;
 
-            // Subtract offset from the previous calculations
             long finalX = tileX - offset.x;
             long finalY = tileY - offset.y;
 
-            // Draw the bitmap of the tiles using a simple paint
+            //rysowanie
             canvas.drawBitmap(tile.img, finalX, finalY, bitmapPaint);
         }
     }
 
     void drawMarker(Canvas canvas, Point offset)
     {
-        // x,y are the calculated offset
-
-        // Proceed only if a gps fix is available
         if (gpsLocation != null)
         {
-            // Get marker position in pixels as if we're going to draw it on a
-            // world map where the top left corner of the map occupies the (0,0)
-            // pixel of the view
             Point markerPos = tileManager.lonLatToPixelXY(gpsLocation.getLongitude(), gpsLocation.getLatitude());
 
-            // Add offset to the marker position
             int markerX = markerPos.x - offset.x;
             int markerY = markerPos.y - offset.y;
 
-            // If marker bitmap exists
             if (positionMarker != null)
             {
-                // Draw the marker and make sure you draw the center of the
-                // marker
-                // at the marker location
                 canvas.drawBitmap(positionMarker, markerX - positionMarker.getWidth() / 2, markerY - positionMarker.getHeight() / 2,
                         bitmapPaint);
             }
+            //wcielo grafike rysuj kó³ko
             else
             {
-                // Draw an ugly circle if no bitmap is set :P
                 canvas.drawCircle(markerX, markerY, 10, bitmapPaint);
             }
 
-            // Draw the marker and make sure you draw the center of the marker
-            // at the marker location
-
-            // Around the marker we will draw a circle representing the accuracy of the gps fix
-            // We first calculate its radius
-
-            // Calculate how many meters one pixel represents
+            // ile metrow na 1 px
             float ground = (float) tileManager.calcGroundResolution(gpsLocation.getLatitude());
 
-            // Location.getAccuracy() returns the accuracy in meters.
             float rad = gpsLocation.getAccuracy() / ground;
 
             canvas.drawCircle(markerX, markerY, rad, circlePaint);
 
-            // Just drawing location info
+            // info tekstowe
             int pen = 1;
-            canvas.drawText("lon:" + gpsLocation.getLongitude(), 0, 20 * pen++, fontPaint);
-            canvas.drawText("lat:" + gpsLocation.getLatitude(), 0, 20 * pen++, fontPaint);
+            canvas.drawText("lon:" + (tochPoin.x*(-1)), 0, 20 * pen++, fontPaint);
+            canvas.drawText("lat:" + (tochPoin.y*(-1)), 0, 20 * pen++, fontPaint);
 //            canvas.drawText("alt:" + gpsLocation.getAltitude(), 0, 20 * pen++, fontPaint);
             canvas.drawText("Zoom:" + tileManager.getZoom(), 0, 20 * pen++, fontPaint);
-            canvas.drawText("10 px to: " + String.valueOf(ground*10) + " metrÃ³w", 0, 20 * pen++, fontPaint);
-            canvas.drawText("lon:" + (-1*tochPoint.y), 0, 20 * pen++, fontPaint);
-            canvas.drawText("lat:" + (-1*tochPoint.x), 0, 20 * pen++, fontPaint);
+            canvas.drawText("\n10 px to: " + String.valueOf(ground*10), 0, 20 * pen++, fontPaint);
         }
     }
 
@@ -334,8 +259,6 @@ public class MapView extends View
 
         if (action == MotionEvent.ACTION_DOWN)
         {
-
-//            Keep touch position for later use (dragging)
             lastTouchPos.x = (int) event.getX();
             lastTouchPos.y = (int) event.getY();
             Point center = new Point(getWidth() / 2, getHeight() / 2);
@@ -345,15 +268,7 @@ public class MapView extends View
             centerGlobal.y -= diff.y;
 
             PointD geoPoint = tileManager.pixelXYToLonLat((int) centerGlobal.y, (int) centerGlobal.x);
-            tochPoint = geoPoint;
-//            Log.d("asd","asd");
-//            tileManager.lonLatToPixelXY((int) event.getX(), (int) event.getY());
-//            PointD current = new PointD(event.getX(), event.getY());
-//            PointD diff = new PointD(current.x - lastTouchPos.x, current.y - lastTouchPos.y);
-//            Point pixels1 = tileManager.lonLatToPixelXY(seekLocation.x, seekLocation.y);
-//            Point pixels2 = new Point(pixels1.x - (int) diff.x, pixels1.y - (int) diff.y);
-//            PointD newSeek = tileManager.pixelXYToLonLat((int) pixels2.x, (int) pixels2.y);
-//            this.setGpsLocation(newSeek.x, newSeek.y);
+            tochPoin = geoPoint;
 
             return true;
         }
@@ -362,26 +277,20 @@ public class MapView extends View
             autoFollow = false;
             PointD current = new PointD(event.getX(), event.getY());
 
-            // Find how many pixels the users finger moved in both x and y
+            // o ile przesuniecie w px
             PointD diff = new PointD(current.x - lastTouchPos.x, current.y - lastTouchPos.y);
 
-            // In a full wolrd map, get the position of the center of the view in pixels
             Point pixels1 = tileManager.lonLatToPixelXY(seekLocation.x, seekLocation.y);
 
-            // Subtract diff from that position
             Point pixels2 = new Point(pixels1.x - (int) diff.x, pixels1.y - (int) diff.y);
 
-            // Recnovert the final result to longitude, latitude point
             PointD newSeek = tileManager.pixelXYToLonLat((int) pixels2.x, (int) pixels2.y);
 
-            // Finally move the center of the view to the new location
             seekLocation = newSeek;
 
-            // Refresh the view
             fetchTiles();
-            invalidate(); // Causes the view to redraw itself
+            invalidate();
 
-            // Prepare for the next drag event
             lastTouchPos.x = current.x;
             lastTouchPos.y = current.y;
 
@@ -391,21 +300,19 @@ public class MapView extends View
         return super.onTouchEvent(event);
     }
 
-    // Fetch the tiles then draw, don't call to often
+
     public void refresh()
     {
         fetchTiles();
         invalidate();
     }
 
-    // Like refresh but called from a non UI thread
     public void postRefresh()
     {
         fetchTiles();
         postInvalidate();
     }
 
-    // Simply sets seek location to gpsLocation (if exists)
     public void followMarker()
     {
         if (gpsLocation != null)
@@ -439,39 +346,27 @@ public class MapView extends View
         invalidate();
     }
 
-    // Returns the gps coordinates of the user
     public Location getGpsLocation()
     {
         return gpsLocation;
     }
 
-    // Returns the gps coordinates of our view center
     public PointD getSeekLocation()
     {
         return seekLocation;
     }
 
-    // Centers the given gps coordinates in our view
     public void setSeekLocation(double longitude, double latitude)
     {
         seekLocation.x = longitude;
         seekLocation.y = latitude;
     }
 
-    // Sets the marker position
-//    public void setGpsLocation(Location location)
-//    {
-//        setGpsLocation(location.getLongitude(), location.getLatitude(), location.getAltitude(), location.getAccuracy());
-//    }
-
-    // Sets the marker position
-    public void setGpsLocation(double longitude, double latitude)//, double altitude, float accuracy)
+    public void setGpsLocation(double longitude, double latitude)
     {
         if (gpsLocation == null) gpsLocation = new Location("");
         gpsLocation.setLongitude(longitude);
         gpsLocation.setLatitude(latitude);
-//        gpsLocation.setAltitude(altitude);
-//        gpsLocation.setAccuracy(accuracy);
 
         if (autoFollow) followMarker();
 
@@ -495,7 +390,6 @@ public class MapView extends View
 
         if (!this.isInEditMode())
         {
-            // Update the tiles manager
             this.viewWidth = getWidth();
             this.viewHeight = getHeight();
 
