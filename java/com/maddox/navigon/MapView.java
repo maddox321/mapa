@@ -88,7 +88,7 @@ public class MapView extends View
 
         this.positionMarker = positionMarker;
 
-        //wymiary kafelka to 256 podawany jako parametr bo s¹ mozliwe rozne wielkosci
+        //wymiary kafelka to 256 podawany jako parametr bo sï¿½ mozliwe rozne wielkosci
         tileManager = new TilesManager(256, viewWidth, viewHeight);
 
         //inicjalizacja paintow
@@ -128,7 +128,7 @@ public class MapView extends View
 
     void fetchTiles()
     {
-        // update menadzera zeby wiedzia³ gdzie jest teraz srodek
+        // update menadzera zeby wiedziaï¿½ gdzie jest teraz srodek
         tileManager.setLocation(seekLocation.x, seekLocation.y);
 
         // pobranie 4 rogow jakie potrzebujemy
@@ -180,10 +180,10 @@ public class MapView extends View
         // szary
         canvas.drawARGB(255, 100, 100, 100);
 
-        //znormalizowany pixel œrodka 0,0 - 1,0
+        //znormalizowany pixel ï¿½rodka 0,0 - 1,0
         PointD pixRatio = TilesManager.calcRatio(seekLocation.x, seekLocation.y);
 
-        // normalny pixel œrodka
+        // normalny pixel ï¿½rodka
         int mapWidth = tileManager.mapSize() * 256;
         Point pix = new Point((int) (pixRatio.x * mapWidth), (int) (pixRatio.y * mapWidth));
 
@@ -229,7 +229,7 @@ public class MapView extends View
                 canvas.drawBitmap(positionMarker, markerX - positionMarker.getWidth() / 2, markerY - positionMarker.getHeight() / 2,
                         bitmapPaint);
             }
-            //wcielo grafike rysuj kó³ko
+            //wcielo grafike rysuj kï¿½ko
             else
             {
                 canvas.drawCircle(markerX, markerY, 10, bitmapPaint);
@@ -244,11 +244,13 @@ public class MapView extends View
 
             // info tekstowe
             int pen = 1;
-            canvas.drawText("lon:" + (tochPoin.x*(-1)), 0, 20 * pen++, fontPaint);
-            canvas.drawText("lat:" + (tochPoin.y*(-1)), 0, 20 * pen++, fontPaint);
+            canvas.drawText("lon:" + gpsLocation.getLongitude(), 0, 20 * pen++, fontPaint);
+            canvas.drawText("lat:" + gpsLocation.getLatitude(), 0, 20 * pen++, fontPaint);
+            canvas.drawText("Longitude:" + (tochPoin.y*(-1)), 0, 20 * pen++, fontPaint);
+            canvas.drawText("Latitude:" + (tochPoin.x*(-1)), 0, 20 * pen++, fontPaint);
 //            canvas.drawText("alt:" + gpsLocation.getAltitude(), 0, 20 * pen++, fontPaint);
             canvas.drawText("Zoom:" + tileManager.getZoom(), 0, 20 * pen++, fontPaint);
-            canvas.drawText("\n10 px to: " + String.valueOf(ground*10), 0, 20 * pen++, fontPaint);
+            canvas.drawText("10 px to: " + String.valueOf(ground*10) + " metrÃ³w", 0, 20 * pen++, fontPaint);
         }
     }
 

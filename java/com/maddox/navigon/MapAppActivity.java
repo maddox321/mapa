@@ -85,8 +85,8 @@ public class MapAppActivity extends Activity{
 
     void initViews(){
         //Pobranie pliku z baza danych mapy
-        String path = Environment.getExternalStorageDirectory() + "/mapapp/Lol.sqlitedb";
-        //String path = "/storage/sdcard1/mapapp/Lol.sqlitedb";
+//        String path = Environment.getExternalStorageDirectory() + "/mapapp/Lol.sqlitedb";
+        String path = "/storage/sdcard1/mapapp/Lol.sqlitedb";
         tilesProvider = new TilesProvider(path);
 
         if (savedGpsLocation != null) mapView.setGpsLocation(gpsTracker.getLongitude(), gpsTracker.getLongitude());
